@@ -200,6 +200,20 @@ class DocumentListViewController: UICollectionViewController {
       
       // Add it to the list of availableFiles
       availableFiles.append(url)
+      
+      // Check to see if we already have the latest verison downloaded
+      if itemIsOpenable(url) {
+        // We only need to download if itsn't already openable
+        continue
+      }
+      
+      // Ask the system to try and download it 
+      do {
+        try FileManager.default.startDownloadingUbiquitousItem(at: url)
+      } catch let error as NSError {
+        // We have a problem =(
+        print("Error downloading item! \(error)")
+      }
     }
   }
   
@@ -253,7 +267,42 @@ class DocumentListViewController: UICollectionViewController {
       }
     }
   }
-        
+  
+  // Return true if the document can be opened right now
+  func itemIsOpenable(_ url: URL?) -> Bool {
+    
+    // Return false if the item is nil
+    guard let itemURL = url else {
+      return false
+    }
+    
+    // Return true if we don't have access to iCloud (which means
+    // that it's not possible for it to be in conflict - we'll always have
+    // the latest copy)
+    if DocumentListViewController.iCloudAvailable == false {
+      return true
+    }
+    
+    // Ask the system for the download status 
+    var resource: URLResourceValues
+    do {
+      resource = try itemURL.resourceValues(forKeys:
+       [.ubiquitousItemDownloadingStatusKey])
+    } catch let error as NSError {
+      NSLog("Failed to get downloading status for \(itemURL): \(error)")
+      // If we can't get that then we can't open itemURL
+      return false
+    }
+    
+    // Return true if this file is the most current verison
+    if resource.ubiquitousItemDownloadingStatus ==
+      URLUbiquitousItemDownloadingStatus.current {
+      return true
+    } else {
+      return false
+    }
+    
+  }
   
   override func didReceiveMemoryWarning() {
     super.didReceiveMemoryWarning()
@@ -304,6 +353,18 @@ class DocumentListViewController: UICollectionViewController {
       }
     } catch {
       cell.fileNameLabel!.text = "Loading..."
+    }
+    
+    // If this cell is openable, make it fully visible, and
+    // make the cell able to be touched
+    if itemIsOpenable(url) {
+      cell.alpha = 1.0
+      cell.isUserInteractionEnabled = true
+    } else {
+      // But if it's not, make it semittransparent, and 
+      // make the cell not respond to input
+      cell.alpha = 0.5
+      cell.isUserInteractionEnabled = false
     }
     
     return cell
