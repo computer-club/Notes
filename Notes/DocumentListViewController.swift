@@ -372,6 +372,13 @@ class DocumentListViewController: UICollectionViewController {
       self.deleteDocumentAtURL(url)
     }
     
+    let labelTapRecognizer = UITapGestureRecognizer(target: cell,
+      action: #selector(FileCollectionViewCell.renameTapped))
+    cell.fileNameLabel?.gestureRecognizers = [labelTapRecognizer]
+    cell.renameHander = {
+      self.renameDocumentAtURL(url)
+    }
+    
     // If this cell is openable, make it fully visible, and
     // make the cell able to be touched
     if itemIsOpenable(url) {
@@ -411,6 +418,63 @@ class DocumentListViewController: UICollectionViewController {
           self.present(alert, animated: true, completion: nil)
         }
     }
+  }
+  
+  func renameDocumentAtURL(_ url: URL) {
+    
+    // Create an alert box
+    let renameBox = UIAlertController(
+      title: "Rename Document", message: nil, preferredStyle: .alert)
+    
+    // Add a text field to it that contains its current name, sans ".note"
+    renameBox.addTextField(configurationHandler: { (textField) -> Void in
+      let fileName = url.lastPathComponent.replacingOccurrences(of: ".note", with: "")
+      textField.text = fileName
+    })
+    
+    // Add the cancel button, which does nothing
+    renameBox.addAction(UIAlertAction(
+      title: "Cancel", style: .cancel, handler: nil))
+    
+    // Add the rename button, which actually will does renaming
+    renameBox.addAction(UIAlertAction(
+      title: "Rename",style: .default) { (action) in
+        
+        // Attempt to construct a destination URL from the name the user provided
+        if let newName = renameBox.textFields?.first?.text {
+          let destinationURL = url.deletingLastPathComponent()
+            .appendingPathComponent(newName + ".note")
+          
+          let fileCoordinator = NSFileCoordinator(filePresenter: nil)
+          
+          // Indicate that we intend to do writing
+          fileCoordinator.coordinate(
+            writingItemAt: url,options: [],
+            writingItemAt: destinationURL, options: [],
+            error: nil, byAccessor: {
+              (origin, destination) -> Void in
+                do {
+                  // Perform the actual move
+                  try FileManager.default
+                    .moveItem(at: origin, to: destination)
+                  
+                  // Remove the original URL from the file list by filtering it out
+                  self.availableFiles = self.availableFiles.filter{$0 != url}
+                  
+                  // Add the new URL to the file list
+                  self.availableFiles.append(destination)
+                  
+                  // Refresh our collection of files
+                  self.collectionView?.reloadData()
+                } catch let error as NSError {
+                  NSLog("Failed to move \(origin) to " +
+                  "\(destination): \(error)")
+              }
+          })
+        }
+    })
+    // Finally, present the box
+    self.present(renameBox, animated: true, completion: nil)
   }
   
   // MARK: UICollectionViewDelegate
