@@ -119,9 +119,13 @@ class DocumentListViewController: UICollectionViewController {
       refreshLocalFilesList()
     }
     
+    // Add the "add" button to the navigation controller
     let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self,
       action: #selector(DocumentListViewController.createDocument))
     self.navigationItem.rightBarButtonItem = addButton
+    
+    // Add the "edit" button to the navigation controller
+    self.navigationItem.leftBarButtonItem = self.editButtonItem
   }
   
   func refreshLocalFilesList() {
@@ -309,6 +313,14 @@ class DocumentListViewController: UICollectionViewController {
     // Dispose of any resources that can be recreated.
   }
   
+  override func setEditing(_ editing: Bool, animated: Bool) {
+    super.setEditing(editing, animated: animated)
+    for visibleCell in self.collectionView?.visibleCells
+      as! [FileCollectionViewCell] {
+        visibleCell.setEditing(editing, animated: animated)
+    }
+  }
+  
   /*
    // MARK: - Navigation
    
@@ -355,6 +367,11 @@ class DocumentListViewController: UICollectionViewController {
       cell.fileNameLabel!.text = "Loading..."
     }
     
+    cell.setEditing(self.isEditing, animated: false)
+    cell.deletionHander = {
+      self.deleteDocumentAtURL(url)
+    }
+    
     // If this cell is openable, make it fully visible, and
     // make the cell able to be touched
     if itemIsOpenable(url) {
@@ -368,6 +385,32 @@ class DocumentListViewController: UICollectionViewController {
     }
     
     return cell
+  }
+  
+  func deleteDocumentAtURL(_ url: URL) {
+    let fileCoordinator = NSFileCoordinator(filePresenter: nil)
+    fileCoordinator.coordinate(writingItemAt: url,
+      options: .forDeleting, error: nil) { (urlForModifying) -> Void in
+        do {
+          try FileManager.default.removeItem(at: urlForModifying)
+          
+          // Remove the URL from the list 
+          self.availableFiles = self.availableFiles.filter {
+            $0 != url
+          }
+          // Update the collection
+          self.collectionView?.reloadData()
+        } catch let error as NSError {
+          let alert = UIAlertController(title: "Error deleting",
+            message: error.localizedDescription,
+            preferredStyle: UIAlertControllerStyle.alert)
+          
+          alert.addAction(UIAlertAction(title: "Done",
+            style: .default, handler: nil))
+          
+          self.present(alert, animated: true, completion: nil)
+        }
+    }
   }
   
   // MARK: UICollectionViewDelegate

@@ -48,7 +48,7 @@
                                     <rect key="frame" x="0.0" y="0.0" width="180" height="180"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dNK-T5-iCr">
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dNK-T5-iCr">
                                             <rect key="frame" x="8" y="152" width="164" height="20"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="20" id="gif-IC-Kb4"/>
@@ -64,8 +64,23 @@
                                                     <rect key="frame" x="0.0" y="-4" width="180" height="152"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 </imageView>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="s8K-mv-65T">
+                                                    <rect key="frame" x="144" y="8" width="28" height="24"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="28" id="oq2-Wu-hGw"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="18"/>
+                                                    <state key="normal" image="Delete"/>
+                                                    <connections>
+                                                        <action selector="deleteTapped:" destination="Nky-ul-1v9" eventType="touchUpInside" id="WAr-FT-1nE"/>
+                                                    </connections>
+                                                </button>
                                             </subviews>
                                             <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                            <constraints>
+                                                <constraint firstItem="s8K-mv-65T" firstAttribute="trailing" secondItem="MJw-hT-gWt" secondAttribute="trailingMargin" id="YuW-gV-h94"/>
+                                                <constraint firstItem="s8K-mv-65T" firstAttribute="top" secondItem="MJw-hT-gWt" secondAttribute="topMargin" id="gDF-94-pwP"/>
+                                            </constraints>
                                         </view>
                                     </subviews>
                                 </view>
@@ -81,6 +96,7 @@
                                     <constraint firstAttribute="trailing" secondItem="MJw-hT-gWt" secondAttribute="trailing" id="skz-3c-juK"/>
                                 </constraints>
                                 <connections>
+                                    <outlet property="deleteButton" destination="s8K-mv-65T" id="qIq-Pq-pye"/>
                                     <outlet property="fileNameLabel" destination="dNK-T5-iCr" id="gbi-d5-F8b"/>
                                     <outlet property="imageView" destination="fzo-8U-3UC" id="Q7f-fr-i35"/>
                                 </connections>
@@ -95,7 +111,10 @@
                 </collectionViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Nai-AZ-0E2" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-137" y="66"/>
+            <point key="canvasLocation" x="-138.40000000000001" y="65.217391304347828"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="Delete" width="22" height="24"/>
+    </resources>
 </document>
